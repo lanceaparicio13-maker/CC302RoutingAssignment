@@ -1,7 +1,42 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class SamplePage extends StatelessWidget {
+class SamplePage extends StatefulWidget {
   const SamplePage({super.key});
+
+  @override
+  State<SamplePage> createState() => _SamplePageState();
+}
+
+class _SamplePageState extends State<SamplePage> {
+  List data = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/todos'),
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        data = jsonDecode(response.body);
+        isLoading = false;
+      });
+    }
+  }
+
+  void deleteItem(int index) {
+    setState(() {
+      data.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,56 +45,34 @@ class SamplePage extends StatelessWidget {
         title: const Text('Sample'),
         centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.article,
-              size: 100,
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              'Sample Page',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 140),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/');
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: const EdgeInsets.all(8),
+                  child: ListTile(
+                    title: Text(
+                      data[index]['title'],
+                    ),
+                    subtitle: Text(
+                      'ID: ${data[index]['id']}',
+                    ),
+                    trailing: ElevatedButton(
+                      onPressed: () {
+                        deleteItem(index);
+                      },
+                      child: const Icon(
+                        Icons.delete,
+                      ),
+                    ),
+                  ),
+                );
               },
-              child: const Text('Home'),
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        onTap: (index) {
-          if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/');
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/profile');
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.article),
-            label: 'Sample',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
     );
   }
 }

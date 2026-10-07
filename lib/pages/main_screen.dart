@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
-import 'profile_page.dart';
 import 'sample_page.dart';
+import 'profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -11,69 +11,40 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 1;
+  int currentIndex = 1;
 
-  final List<Widget> _pages = [
+  final pages = [
+    const SamplePage(),
     const HomePage(),
     const ProfilePage(),
-    const SamplePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_currentIndex == 1 ? 'Home' : _currentIndex == 2 ? 'Profile' : 'Sample', style: const TextStyle(fontWeight: FontWeight.bold
-        )
-        ),
-
-        centerTitle: true,
-        elevation: 2,
-        surfaceTintColor: Colors.transparent,
-      ),
-
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        
-        transitionBuilder: (child, animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: child,
-          );
-        },
-
-        child: _pages[_currentIndex],
-      ),
-      
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
+      body: pages[currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            currentIndex = index;
           });
         },
-
-        destinations: const [
-
-          NavigationDestination(
+        items: const [
+          BottomNavigationBarItem(
             icon: Icon(Icons.article),
-            selectedIcon: Icon(Icons.article_outlined),
             label: 'Sample',
           ),
-
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            selectedIcon: Icon(Icons.home_outlined),
             label: 'Home',
           ),
-
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            selectedIcon: Icon(Icons.person_outlined),
             label: 'Profile',
           ),
         ],
-      )
+      ),
     );
   }
 }
